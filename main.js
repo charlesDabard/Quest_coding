@@ -133,7 +133,10 @@ const MOUSE_ACCEL = 2.5;      // acceleration curve exponent
 const MOUSE_DEADZONE = 0.15;  // ignore small stick drift
 const MOUSE_TICK = 16;        // ~60fps
 let stickX = 0, stickY = 0;
+let rStickX = 0, rStickY = 0;
 let mouseLoopId = null;
+const SCROLL_SPEED = 5;       // max scroll amount per tick
+const SCROLL_ACCEL = 2.0;     // acceleration curve for scroll
 
 // Double-tap detection
 const DOUBLE_TAP_MS = 250;
@@ -242,24 +245,48 @@ function initController() {
   // ── Left stick → mouse cursor ──
   controller.left.analog.x.on("change", (input) => { stickX = input.state; });
   controller.left.analog.y.on("change", (input) => { stickY = input.state; });
+
+  // ── Right stick → scroll ──
+  controller.right.analog.x.on("change", (input) => { rStickX = input.state; });
+  controller.right.analog.y.on("change", (input) => { rStickY = input.state; });
+
   startMouseLoop();
 }
 
 function startMouseLoop() {
   mouseLoopId = setInterval(async () => {
+    // ── Left stick → mouse cursor ──
     const ax = Math.abs(stickX) < MOUSE_DEADZONE ? 0 : stickX;
     const ay = Math.abs(stickY) < MOUSE_DEADZONE ? 0 : stickY;
-    if (ax === 0 && ay === 0) return;
+    if (ax !== 0 || ay !== 0) {
+      const boost = held.r1 ? 2 : 1;
+      const accel = (v) => Math.sign(v) * Math.pow(Math.abs(v), MOUSE_ACCEL) * MOUSE_SPEED * boost;
+      try {
+        const pos = await mouse.getPosition();
+        const nx = pos.x + Math.round(accel(ax));
+        const ny = pos.y - Math.round(accel(ay));
+        await mouse.setPosition({ x: nx, y: ny });
+      } catch (err) {
+        console.error("Mouse error:", err.message);
+      }
+    }
 
-    const boost = held.r1 ? 2 : 1;
-    const accel = (v) => Math.sign(v) * Math.pow(Math.abs(v), MOUSE_ACCEL) * MOUSE_SPEED * boost;
-    try {
-      const pos = await mouse.getPosition();
-      const nx = pos.x + Math.round(accel(ax));
-      const ny = pos.y - Math.round(accel(ay));
-      await mouse.setPosition({ x: nx, y: ny });
-    } catch (err) {
-      console.error("Mouse error:", err.message);
+    // ── Right stick → scroll ──
+    const sx = Math.abs(rStickX) < MOUSE_DEADZONE ? 0 : rStickX;
+    const sy = Math.abs(rStickY) < MOUSE_DEADZONE ? 0 : rStickY;
+    if (sx !== 0 || sy !== 0) {
+      const sBoost = held.r1 ? 2 : 1;
+      const scrollAccel = (v) => Math.round(Math.sign(v) * Math.pow(Math.abs(v), SCROLL_ACCEL) * SCROLL_SPEED * sBoost);
+      try {
+        const dy = scrollAccel(sy);
+        const dx = scrollAccel(sx);
+        if (dy > 0) await mouse.scrollUp(dy);
+        else if (dy < 0) await mouse.scrollDown(-dy);
+        if (dx > 0) await mouse.scrollRight(dx);
+        else if (dx < 0) await mouse.scrollLeft(-dx);
+      } catch (err) {
+        console.error("Scroll error:", err.message);
+      }
     }
   }, MOUSE_TICK);
 }
