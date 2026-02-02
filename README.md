@@ -1,164 +1,91 @@
 <p align="center">
-  <img src="assets/iconTemplate.png" width="80" alt="Quest icon">
-</p>
-
-<h1 align="center">Quest</h1>
-
-<p align="center">
-  <strong>Transforme ta manette PS5 en clavier macOS.</strong><br>
-  Une app menu bar invisible qui traduit les inputs DualSense en actions clavier — navigation, validation, suppression et dictee vocale.
+  <img src="assets/logo.svg" width="400" alt="Quest">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/macOS-Big_Sur_11.3+-black?style=flat-square&logo=apple" alt="macOS">
-  <img src="https://img.shields.io/badge/PS5-DualSense-blue?style=flat-square&logo=playstation" alt="DualSense">
-  <img src="https://img.shields.io/badge/Electron-34-47848F?style=flat-square&logo=electron" alt="Electron">
+  <code>Manette PS5 DualSense → macOS</code>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-11.3+-0ff?style=flat-square&logo=apple&logoColor=0ff&labelColor=0a0a0f" alt="macOS">
+  <img src="https://img.shields.io/badge/DualSense-USB%20%7C%20BT-b44aff?style=flat-square&logo=playstation&logoColor=b44aff&labelColor=0a0a0f" alt="DualSense">
+  <img src="https://img.shields.io/badge/Electron-34-ff2d95?style=flat-square&logo=electron&logoColor=ff2d95&labelColor=0a0a0f" alt="Electron">
 </p>
 
 ---
 
-## Pourquoi Quest ?
-
-Tu veux naviguer dans une app, valider des choix, dicter du texte ou corriger des mots — **sans toucher ton clavier**. Quest vit dans ta barre de menus macOS et transforme ta manette PS5 DualSense en peripherique d'accessibilite.
-
-Branche ta manette. Lance Quest. C'est tout.
+App menu bar invisible. Branche ta manette. Controle ton Mac — clavier, souris, dictee vocale. Zero config.
 
 ---
 
-## Mapping
-
-| Bouton manette | Action clavier |
-|:---:|:---|
-| **D-pad** | Fleches directionnelles |
-| **X** (Croix) | Entree / Validation |
-| **O** (Rond) | Demarrer / Arreter la dictee vocale macOS |
-| **[]** (Carre) | Supprimer le dernier mot (`Option + Backspace`) |
-
----
-
-## Installation
-
-### Prerequis
-
-- **macOS** Big Sur 11.3 ou superieur
-- **Node.js** 18+
-- **Xcode Command Line Tools** (pour la compilation de `node-hid`)
-
-```bash
-xcode-select --install
-```
-
-### Setup
+## Setup
 
 ```bash
 git clone https://github.com/charlesDabard/Quest_coding.git
 cd Quest_coding
 npm install
-```
-
-### Lancement
-
-```bash
 npm start
 ```
 
-L'icone Quest apparait dans la barre de menus. Pas d'icone dans le Dock.
+> Prerequis : macOS 11.3+, Node 18+, `xcode-select --install`
 
 ---
 
-## Connexion de la manette
+## Mapping
 
-### USB (filaire)
+### Boutons
 
-Branche la manette DualSense en USB-C. Quest la detecte automatiquement.
+| Bouton | Action | Combo |
+|:---:|:---|:---|
+| **D-pad** | Fleches directionnelles | — |
+| **X** | Clic souris | Double-tap → Enter |
+| **O** | Dictee vocale on/off | — |
+| **[]** | Backspace (1 lettre) | R1+[] → mot · R2+[] → ligne · L2+R2+[] → tout |
+| **Triangle** | Shift+Tab (switch mode) | — |
+| **L1** | Undo | _modifier_ |
+| **R1** | Redo | _modifier_ |
+| **L2** | Scroll haut | _modifier_ |
+| **R2** | Scroll bas | _modifier_ |
+| **L3** | Copier | — |
+| **R3** | Coller | — |
+| **Options** | Tab | — |
+| **Create** | Ctrl+C (interrompre) | — |
+| **Mute** | Echap | — |
+| **Touchpad** | Cmd+Tab (switch app) | — |
 
-### Bluetooth
+### Stick gauche
 
-1. Sur la manette, maintiens **PS + Create** jusqu'au clignotement bleu
-2. Sur le Mac : **Reglages Systeme > Bluetooth** > connecte "DualSense Wireless Controller"
+Deplace le curseur souris. Acceleration non-lineaire — petit mouvement = precision, stick a fond = rapide.
 
-Quest affiche le statut de connexion dans le menu dropdown (point vert = connectee).
+### Modifiers
 
----
-
-## Permissions macOS requises
-
-Quest simule des frappes clavier et accede au micro pour la dictee. macOS demande des autorisations :
-
-| Permission | Chemin | Raison |
-|---|---|---|
-| **Accessibilite** | Reglages Systeme > Confidentialite > Accessibilite | Simulation de touches clavier |
-| **Micro** | Reglages Systeme > Confidentialite > Microphone | Dictee vocale |
-
-Ajoute le **Terminal** (ou l'app Electron) dans ces deux listes.
-
----
-
-## Architecture
-
-```
-quest/
-├── main.js              # Process principal Electron — tray, controller, keyboard
-├── index.html           # UI du dropdown menu bar
-├── renderer.js          # Logique UI — statut manette, bouton quitter
-├── dictation-toggle.swift  # Binaire Swift pour la dictee (experimental)
-├── assets/
-│   └── iconTemplate.png # Icone menu bar 20x20 (Template = dark mode auto)
-├── package.json
-└── .gitignore
-```
-
-### Stack technique
-
-| Composant | Role |
-|---|---|
-| [Electron](https://electronjs.org) + [menubar](https://github.com/nicjansma/menubar) | App menu bar sans icone Dock |
-| [dualsense-ts](https://github.com/nsfm/dualsense-ts) | Lecture HID de la manette PS5 (USB + Bluetooth) |
-| [nut-js](https://github.com/nut-tree-fork/nut-js) | Simulation de touches clavier via CGEvent |
-| [osascript](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptX/) | Declenchement de la dictee macOS via le menu Accessibility |
-
----
-
-## Fonctionnement de la dictee
-
-La dictee vocale est declenchee via AppleScript en scannant le menu **Edition** (ou **Edit**) de l'application au premier plan. Le script cherche automatiquement le bon item de menu quelle que soit la langue du systeme (francais / anglais).
-
-> **Note** : L'app au premier plan doit avoir un menu Edition avec l'option Dictee (TextEdit, Notes, Pages, Safari, etc.).
+Maintiens **R1**, **R2**, **L1** ou **L2** puis appuie sur un autre bouton pour declencher un combo. Si le modifier est relache seul, son action propre se declenche.
 
 ---
 
 ## Personnalisation
 
-Le mapping est defini dans `main.js` dans la fonction `initController()`. Pour ajouter un nouveau bouton :
+L'UI dans la barre de menus permet de remapper chaque bouton via un dropdown. 40+ actions disponibles. Le mapping est sauvegarde dans `config.json`.
 
-```js
-// Exemple : Triangle → Echap
-controller.triangle.on("press", () => {
-  pressKey(Key.Escape);
-});
-```
-
-Boutons disponibles : `cross`, `circle`, `square`, `triangle`, `left.bumper`, `right.bumper`, `left.trigger`, `right.trigger`, `ps`, `options`, `create`, `mute`, `touchpad.button`.
+Bouton **Reset** pour revenir au mapping par defaut.
 
 ---
 
-## Troubleshooting
+## Permissions
 
-| Probleme | Solution |
-|---|---|
-| Manette non detectee | Verifie la connexion USB ou le Bluetooth. Relance `npm start`. |
-| Touches ne fonctionnent pas | Ajoute le Terminal/Electron dans Accessibilite (Reglages Systeme). |
-| Dictee ne demarre pas | Verifie que l'app au premier plan a un menu Edition > Dictee. |
-| Erreur `node-hid` a l'install | Lance `xcode-select --install` puis reinstalle. |
+| Permission | Ou |
+|:---|:---|
+| Accessibilite | Reglages Systeme → Confidentialite → Accessibilite |
+| Microphone | Reglages Systeme → Confidentialite → Microphone |
 
 ---
 
-## Licence
+## Stack
 
-ISC
+[Electron](https://electronjs.org) + [menubar](https://github.com/nicjansma/menubar) · [dualsense-ts](https://github.com/nsfm/dualsense-ts) · [@nut-tree-fork/nut-js](https://github.com/nut-tree-fork/nut-js) · osascript
 
 ---
 
 <p align="center">
-  <sub>Construit avec une manette PS5 et du cafe.</sub>
+  <sub>ISC · Construit avec une manette et du cafe.</sub>
 </p>
