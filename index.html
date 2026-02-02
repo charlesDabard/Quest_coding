@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Quest</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      padding: 16px 20px;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      -webkit-app-region: no-drag;
+      user-select: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1c1c1e; color: #f5f5f7; }
+      .mapping-row { border-bottom-color: #333; }
+      .quit-btn { border-color: #555; }
+      .quit-btn:hover { background: rgba(255,255,255,0.08); }
+    }
+    .header {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 14px;
+      letter-spacing: -0.3px;
+    }
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    .status-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #30d158; flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(48, 209, 88, 0.5);
+    }
+    .status-dot.off {
+      background: #636366;
+      box-shadow: none;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #86868b;
+      margin-bottom: 8px;
+    }
+    .mapping-table {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .mapping-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid #e5e5ea;
+      font-size: 13px;
+    }
+    .mapping-row:last-child { border-bottom: none; }
+    .mapping-btn {
+      font-weight: 600;
+      min-width: 80px;
+    }
+    .mapping-action {
+      color: #86868b;
+      text-align: right;
+    }
+    .quit-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 10px;
+      background: none;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      color: inherit;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    .quit-btn:hover { background: rgba(0,0,0,0.04); }
+  </style>
+</head>
+<body>
+  <div class="header">Quest</div>
+
+  <div class="status-row">
+    <div class="status-dot off" id="dot"></div>
+    <span id="status-text">Deconnectee</span>
+  </div>
+
+  <div class="section-label">Mapping</div>
+  <div class="mapping-table">
+    <div class="mapping-row">
+      <span class="mapping-btn">D-pad</span>
+      <span class="mapping-action">Fleches clavier</span>
+    </div>
+    <div class="mapping-row">
+      <span class="mapping-btn">Bouton X</span>
+      <span class="mapping-action">Entree</span>
+    </div>
+    <div class="mapping-row">
+      <span class="mapping-btn">Bouton O</span>
+      <span class="mapping-action">Dictee macOS</span>
+    </div>
+    <div class="mapping-row">
+      <span class="mapping-btn">Bouton []</span>
+      <span class="mapping-action">Suppr. dernier mot</span>
+    </div>
+  </div>
+
+  <button class="quit-btn" id="quit-btn">Quitter</button>
+  <script src="renderer.js"></script>
+</body>
+</html>

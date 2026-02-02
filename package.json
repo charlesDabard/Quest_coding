@@ -1,0 +1,19 @@
+{
+  "name": "quest",
+  "version": "1.0.0",
+  "description": "Manette PS5 to keyboard actions — macOS menu bar app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "dualsense-ts": "^5.5.0",
+    "electron": "^34.5.8",
+    "menubar": "^9.5.2",
+    "node-hid": "^2.2.0"
+  }
+}
