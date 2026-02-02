@@ -5,117 +5,221 @@
   <title>Quest</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 14px;
-      padding: 16px 20px;
-      background: #f5f5f7;
-      color: #1d1d1f;
-      -webkit-app-region: no-drag;
-      user-select: none;
+
+    :root {
+      --bg: #f5f5f7;
+      --text: #1d1d1f;
+      --text2: #86868b;
+      --border: #e5e5ea;
+      --card-bg: #fff;
+      --select-bg: #fff;
+      --hover: rgba(0,0,0,0.04);
+      --flash: rgba(48,209,88,0.15);
     }
     @media (prefers-color-scheme: dark) {
-      body { background: #1c1c1e; color: #f5f5f7; }
-      .mapping-row { border-bottom-color: #333; }
-      .quit-btn { border-color: #555; }
-      .quit-btn:hover { background: rgba(255,255,255,0.08); }
+      :root {
+        --bg: #1c1c1e;
+        --text: #f5f5f7;
+        --text2: #8e8e93;
+        --border: #38383a;
+        --card-bg: #2c2c2e;
+        --select-bg: #3a3a3c;
+        --hover: rgba(255,255,255,0.06);
+        --flash: rgba(48,209,88,0.2);
+      }
     }
-    .header {
-      font-weight: 700;
-      font-size: 18px;
-      margin-bottom: 14px;
-      letter-spacing: -0.3px;
-    }
-    .status-row {
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-app-region: no-drag;
+      user-select: none;
       display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header-area { padding: 16px 16px 0; }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-      font-size: 15px;
+      margin-bottom: 12px;
     }
-    .status-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: #30d158; flex-shrink: 0;
-      box-shadow: 0 0 6px rgba(48, 209, 88, 0.5);
+    .logo {
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.5px;
     }
-    .status-dot.off {
-      background: #636366;
-      box-shadow: none;
+    .version {
+      font-size: 10px;
+      color: var(--text2);
+      font-weight: 500;
     }
-    .section-label {
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #86868b;
+      background: var(--card-bg);
+      margin-bottom: 14px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #636366;
+    }
+    .status-dot.on {
+      background: #30d158;
+      box-shadow: 0 0 6px rgba(48,209,88,0.6);
+    }
+
+    /* ── Section ── */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
       margin-bottom: 8px;
     }
-    .mapping-table {
-      width: 100%;
-      margin-bottom: 16px;
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text2);
     }
+    .reset-btn {
+      font-size: 10px;
+      color: #ff453a;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .reset-btn:hover { opacity: 0.7; }
+
+    /* ── Mapping list ── */
+    .mapping-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 12px;
+    }
+    .mapping-list::-webkit-scrollbar { width: 4px; }
+    .mapping-list::-webkit-scrollbar-thumb {
+      background: var(--text2);
+      border-radius: 2px;
+      opacity: 0.3;
+    }
+
+    .group-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text2);
+      padding: 10px 4px 4px;
+    }
+
     .mapping-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 7px 0;
-      border-bottom: 1px solid #e5e5ea;
-      font-size: 13px;
-    }
-    .mapping-row:last-child { border-bottom: none; }
-    .mapping-btn {
-      font-weight: 600;
-      min-width: 80px;
-    }
-    .mapping-action {
-      color: #86868b;
-      text-align: right;
-    }
-    .quit-btn {
-      margin-top: 8px;
-      width: 100%;
-      padding: 10px;
-      background: none;
-      border: 1px solid #d1d1d6;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      color: inherit;
-      font-weight: 500;
+      padding: 5px 8px;
+      margin: 1px 0;
+      border-radius: 6px;
       transition: background 0.15s;
     }
-    .quit-btn:hover { background: rgba(0,0,0,0.04); }
+    .mapping-row:hover { background: var(--hover); }
+    .mapping-row.flash {
+      background: var(--flash);
+      transition: background 0s;
+    }
+
+    .btn-name {
+      font-weight: 600;
+      font-size: 12px;
+      min-width: 95px;
+      white-space: nowrap;
+    }
+
+    select {
+      font-family: inherit;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--select-bg);
+      color: var(--text);
+      max-width: 200px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='8' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%2386868b'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      padding-right: 18px;
+    }
+    select:focus { outline: 2px solid #0A84FF; outline-offset: -1px; }
+
+    optgroup { font-weight: 700; font-size: 11px; }
+    option { font-weight: 400; }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 10px 16px 14px;
+      display: flex;
+      gap: 8px;
+    }
+    .footer-btn {
+      flex: 1;
+      padding: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.15s;
+      text-align: center;
+    }
+    .footer-btn:hover { background: var(--hover); }
+    .footer-btn.quit { color: #ff453a; }
   </style>
 </head>
 <body>
-  <div class="header">Quest</div>
-
-  <div class="status-row">
-    <div class="status-dot off" id="dot"></div>
-    <span id="status-text">Deconnectee</span>
-  </div>
-
-  <div class="section-label">Mapping</div>
-  <div class="mapping-table">
-    <div class="mapping-row">
-      <span class="mapping-btn">D-pad</span>
-      <span class="mapping-action">Fleches clavier</span>
+  <div class="header-area">
+    <div class="header-row">
+      <span class="logo">Quest</span>
+      <span class="version">v1.0</span>
     </div>
-    <div class="mapping-row">
-      <span class="mapping-btn">Bouton X</span>
-      <span class="mapping-action">Entree</span>
-    </div>
-    <div class="mapping-row">
-      <span class="mapping-btn">Bouton O</span>
-      <span class="mapping-action">Dictee macOS</span>
-    </div>
-    <div class="mapping-row">
-      <span class="mapping-btn">Bouton []</span>
-      <span class="mapping-action">Suppr. dernier mot</span>
+    <div class="status-pill">
+      <div class="status-dot" id="dot"></div>
+      <span id="status-text">Deconnectee</span>
     </div>
   </div>
 
-  <button class="quit-btn" id="quit-btn">Quitter</button>
+  <div class="section-header">
+    <span class="section-title">Mapping</span>
+    <button class="reset-btn" id="reset-btn">Reset</button>
+  </div>
+
+  <div class="mapping-list" id="mapping-list"></div>
+
+  <div class="footer">
+    <button class="footer-btn quit" id="quit-btn">Quitter</button>
+  </div>
+
   <script src="renderer.js"></script>
 </body>
 </html>
