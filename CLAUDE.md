@@ -39,9 +39,9 @@ git commit -m "feat: [description]"
 
 ---
 
-### "Push mon Kevin" → Commit + Push
+### "Pousse mon Kevin" → Commit + Push
 
-**Alias** : `push`, `envoie`, `publie`
+**Alias** : `pousse`, `push`, `envoie`, `publie`
 
 ```bash
 git add .
@@ -60,7 +60,7 @@ git push origin main
 1. **Reveille toi mon Kevin** → pull
 2. ... travail / dev ...
 3. **Sauvegarde mon Kevin** → commit
-4. **Push mon Kevin** → push
+4. **Pousse mon Kevin** → push
 
 **Ordre de sync** : Bolt push → Kevin pull → Kevin push → Bolt resync
 
