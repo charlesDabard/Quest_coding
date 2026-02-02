@@ -38,7 +38,7 @@ npm start
 | Bouton | Action | Combo |
 |:---:|:---|:---|
 | **D-pad** | Fleches directionnelles | — |
-| **X** | Clic souris | Double-tap → Enter |
+| **X** | Enter | R1+X → clic souris |
 | **O** | Dictee vocale on/off | — |
 | **[]** | Backspace (1 lettre) | R1+[] → mot · R2+[] → ligne · L2+R2+[] → tout |
 | **Triangle** | Shift+Tab (switch mode) | — |

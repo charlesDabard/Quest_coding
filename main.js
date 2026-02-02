@@ -251,7 +251,8 @@ function startMouseLoop() {
     const ay = Math.abs(stickY) < MOUSE_DEADZONE ? 0 : stickY;
     if (ax === 0 && ay === 0) return;
 
-    const accel = (v) => Math.sign(v) * Math.pow(Math.abs(v), MOUSE_ACCEL) * MOUSE_SPEED;
+    const boost = held.r1 ? 2 : 1;
+    const accel = (v) => Math.sign(v) * Math.pow(Math.abs(v), MOUSE_ACCEL) * MOUSE_SPEED * boost;
     try {
       const pos = await mouse.getPosition();
       const nx = pos.x + Math.round(accel(ax));
