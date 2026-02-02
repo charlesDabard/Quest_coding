@@ -69,6 +69,7 @@ const ACTIONS = {
   select_all_delete: { label: "Tout supprimer",           cat: "Special",     special: "select_all_delete" },
   mouse_click:       { label: "Clic souris gauche",       cat: "Special",     special: "mouse_click" },
   mouse_right_click: { label: "Clic souris droit",        cat: "Special",     special: "mouse_right_click" },
+  selection_mode:    { label: "Selection (Shift maintenu)", cat: "Special",   special: "selection_mode" },
   none:              { label: "Aucune action",            cat: "Special",     keys: [] },
 };
 
@@ -104,7 +105,7 @@ const COMBOS = {
   square: [
     { held: ["l2", "r2"], action: "select_all_delete" },  // L2+R2+□ → tout supprimer
     { held: ["r2"],       action: "delete_line" },         // R2+□ → suppr. ligne
-    { held: ["r1"],       action: "delete_word" },         // R1+□ → suppr. mot
+    { held: ["r1"],       action: "selection_mode" },       // R1+□ → selection (Shift held)
   ],
   cross: [
     { held: ["r1"],       action: "mouse_click" },         // R1+X → clic souris
@@ -121,6 +122,7 @@ let mapping = { ...DEFAULT_MAPPING };
 // Modifier held state
 const held = { l1: false, r1: false, l2: false, r2: false };
 let usedAsModifier = { l1: false, r1: false, l2: false, r2: false };
+let selectionMode = false;  // true when Shift is held for selection (R1+□)
 
 // Hold-to-repeat: emulate keyboard repeat with setInterval
 const REPEAT_DELAY = 400;     // ms before repeat starts
@@ -135,8 +137,12 @@ const MOUSE_TICK = 16;        // ~60fps
 let stickX = 0, stickY = 0;
 let rStickX = 0, rStickY = 0;
 let mouseLoopId = null;
-const SCROLL_SPEED = 5;       // max scroll amount per tick
-const SCROLL_ACCEL = 2.0;     // acceleration curve for scroll
+// Scroll: 3 speed tiers based on stick deflection
+const SCROLL_TIERS = [
+  { threshold: 0.15, speed: 2 },   // slight tilt → slow
+  { threshold: 0.50, speed: 8 },   // medium tilt → fast
+  { threshold: 0.85, speed: 25 },  // full tilt → very fast
+];
 
 // Double-tap detection
 const DOUBLE_TAP_MS = 250;
@@ -230,6 +236,12 @@ function initController() {
       });
       input.on("release", () => {
         held[buttonId] = false;
+        // End selection mode if R1 is released while selecting
+        if (buttonId === "r1" && selectionMode) {
+          selectionMode = false;
+          keyboard.releaseKey(Key.LeftShift).catch((e) => console.error("Shift release error:", e.message));
+          console.log("Selection mode OFF (R1 released)");
+        }
         if (!usedAsModifier[buttonId]) {
           // Was not used as modifier → fire its own mapped action
           handleButton(buttonId);
@@ -271,15 +283,21 @@ function startMouseLoop() {
       }
     }
 
-    // ── Right stick → scroll ──
-    const sx = Math.abs(rStickX) < MOUSE_DEADZONE ? 0 : rStickX;
-    const sy = Math.abs(rStickY) < MOUSE_DEADZONE ? 0 : rStickY;
-    if (sx !== 0 || sy !== 0) {
-      const sBoost = held.r1 ? 2 : 1;
-      const scrollAccel = (v) => Math.round(Math.sign(v) * Math.pow(Math.abs(v), SCROLL_ACCEL) * SCROLL_SPEED * sBoost);
+    // ── Right stick → scroll (3 tiers) ──
+    const scrollVal = (raw) => {
+      const abs = Math.abs(raw);
+      if (abs < SCROLL_TIERS[0].threshold) return 0;
+      const boost = held.r1 ? 2 : 1;
+      let speed = SCROLL_TIERS[0].speed;
+      for (const tier of SCROLL_TIERS) {
+        if (abs >= tier.threshold) speed = tier.speed;
+      }
+      return Math.sign(raw) * speed * boost;
+    };
+    const dy = scrollVal(rStickY);
+    const dx = scrollVal(rStickX);
+    if (dy !== 0 || dx !== 0) {
       try {
-        const dy = scrollAccel(sy);
-        const dx = scrollAccel(sx);
         if (dy > 0) await mouse.scrollUp(dy);
         else if (dy < 0) await mouse.scrollDown(-dy);
         if (dx > 0) await mouse.scrollRight(dx);
@@ -335,6 +353,12 @@ function fireSpecial(action) {
     mouse.leftClick().catch((e) => console.error("Mouse click error:", e.message));
   } else if (action.special === "mouse_right_click") {
     mouse.rightClick().catch((e) => console.error("Mouse right click error:", e.message));
+  } else if (action.special === "selection_mode") {
+    if (!selectionMode) {
+      selectionMode = true;
+      keyboard.pressKey(Key.LeftShift).catch((e) => console.error("Shift press error:", e.message));
+      console.log("Selection mode ON (Shift held)");
+    }
   }
 }
 
@@ -410,6 +434,13 @@ function handleButtonPress(buttonId) {
 
 // Called on button release — stops repeat
 function handleButtonRelease(buttonId) {
+  // End selection mode when square is released
+  if (buttonId === "square" && selectionMode) {
+    selectionMode = false;
+    keyboard.releaseKey(Key.LeftShift).catch((e) => console.error("Shift release error:", e.message));
+    console.log("Selection mode OFF (Shift released)");
+  }
+
   const timers = buttonRepeatTimers[buttonId];
   if (!timers) return;
   if (timers.delay) clearTimeout(timers.delay);
