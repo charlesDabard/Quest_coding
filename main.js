@@ -67,7 +67,7 @@ const ACTIONS = {
   // Special
   dictation:         { label: "Dictee vocale",            cat: "Special",     special: "dictation" },
   select_all_delete: { label: "Tout supprimer",           cat: "Special",     special: "select_all_delete" },
-  mouse_click:       { label: "Clic (2x: Entree)",         cat: "Special",     special: "mouse_click", doubleTap: "enter" },
+  mouse_click:       { label: "Clic souris gauche",       cat: "Special",     special: "mouse_click" },
   mouse_right_click: { label: "Clic souris droit",        cat: "Special",     special: "mouse_right_click" },
   none:              { label: "Aucune action",            cat: "Special",     keys: [] },
 };
@@ -76,7 +76,7 @@ const ACTIONS = {
 const DEFAULT_MAPPING = {
   dpad_up: "arrow_up",    dpad_down: "arrow_down",
   dpad_left: "arrow_left", dpad_right: "arrow_right",
-  cross: "mouse_click",     circle: "dictation",
+  cross: "enter",            circle: "dictation",
   square: "backspace",     triangle: "shift_tab",
   l1: "undo",              r1: "redo",
   l2: "scroll_up",         r2: "scroll_down",
@@ -105,6 +105,9 @@ const COMBOS = {
     { held: ["l2", "r2"], action: "select_all_delete" },  // L2+R2+□ → tout supprimer
     { held: ["r2"],       action: "delete_line" },         // R2+□ → suppr. ligne
     { held: ["r1"],       action: "delete_word" },         // R1+□ → suppr. mot
+  ],
+  cross: [
+    { held: ["r1"],       action: "mouse_click" },         // R1+X → clic souris
   ],
 };
 

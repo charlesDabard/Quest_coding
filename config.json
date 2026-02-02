@@ -4,7 +4,7 @@
     "dpad_down": "arrow_down",
     "dpad_left": "arrow_left",
     "dpad_right": "arrow_right",
-    "cross": "mouse_click",
+    "cross": "enter",
     "circle": "dictation",
     "square": "backspace",
     "triangle": "shift_tab",
