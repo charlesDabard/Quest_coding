@@ -141,9 +141,9 @@ const DEFAULTS = {
   mouseAccel: 2.5,
   mouseDeadzone: 0.15,
   mouseTick: 16,
-  mouseSpeedMin: 0.8,
-  mouseSpeedMax: 1.2,
-  mouseRampMs: 500,
+  mouseSpeedMin: 0.4,
+  mouseSpeedMax: 1.8,
+  mouseRampMs: 800,
   scrollTiers: [
     { threshold: 0.25, speed: 2 },
     { threshold: 0.50, speed: 8 },
@@ -522,7 +522,8 @@ function startMouseLoop() {
       if (stickActiveStart === 0) stickActiveStart = now;
       const elapsed = now - stickActiveStart;
       const ramp = Math.min(elapsed / settings.mouseRampMs, 1);
-      const timeMult = settings.mouseSpeedMin + ramp * (settings.mouseSpeedMax - settings.mouseSpeedMin);
+      const eased = ramp * ramp;  // ease-in quadratic: slow start, fast finish
+      const timeMult = settings.mouseSpeedMin + eased * (settings.mouseSpeedMax - settings.mouseSpeedMin);
       const boost = held.r1 ? 2 : 1;
       const accel = (v) => Math.sign(v) * Math.pow(Math.abs(v), settings.mouseAccel) * settings.mouseSpeed * timeMult * boost;
       try {
@@ -789,9 +790,9 @@ async function toggleDictation() {
   if (dictationActive) {
     await fireKeys([Key.Escape]);
     dictationActive = false;
-    dictationBusy = false;
     setLedColor(0, 255, 255);  // back to cyan
     console.log("Dictation: stopped");
+    setTimeout(() => { dictationBusy = false; }, 600);  // cooldown: let macOS finish closing
     return;
   }
 
