@@ -787,18 +787,13 @@ async function toggleDictation() {
   if (dictationBusy) return;
   dictationBusy = true;
 
-  // SuperWhisper: Right Cmd toggles on/off, track state + cooldown
+  // SuperWhisper: just send Right Cmd, let SuperWhisper manage its own state
+  // (SuperWhisper auto-stops on silence, so tracking dictationActive causes desync)
   if (dictationProvider === "superwhisper") {
     await fireKeys([Key.RightCmd]);
-    if (!dictationActive) {
-      dictationActive = true;
-      setLedColor(255, 50, 100);  // red/pink = recording
-      console.log("Dictation: SuperWhisper started");
-    } else {
-      dictationActive = false;
-      setLedColor(0, 255, 255);  // back to cyan
-      console.log("Dictation: SuperWhisper stopped");
-    }
+    setLedColor(255, 50, 100);
+    setTimeout(() => setLedColor(0, 255, 255), 2000);  // flash 2s
+    console.log("Dictation: SuperWhisper toggled");
     setTimeout(() => { dictationBusy = false; }, 1000);  // cooldown: block rapid re-toggle
     return;
   }
