@@ -72,6 +72,7 @@ const ACTIONS = {
   select_all_delete: { label: "Tout supprimer",           cat: "Special",     special: "select_all_delete" },
   mouse_click:       { label: "Clic souris gauche",       cat: "Special",     special: "mouse_click" },
   mouse_right_click: { label: "Clic souris droit",        cat: "Special",     special: "mouse_right_click" },
+  mouse_double_click: { label: "Double clic souris",      cat: "Special",     special: "mouse_double_click" },
   selection_mode:    { label: "Selection (Shift maintenu)", cat: "Special",   special: "selection_mode" },
   none:              { label: "Aucune action",            cat: "Special",     keys: [] },
 };
@@ -122,7 +123,7 @@ const COMBOS = {
 };
 
 // ─── State ───────────────────────────────────────────────────────────────────
-let mb, controller;
+let mb, controller, gameWindow;
 let connected = false;
 let dictationBusy = false;
 let dictationActive = false;
@@ -133,6 +134,8 @@ let dictationProvider = "apple";  // "apple" | "superwhisper"
 const held = { l1: false, r1: false, l2: false, r2: false };
 let usedAsModifier = { l1: false, r1: false, l2: false, r2: false };
 let selectionMode = false;  // true when mouse button is held for drag-select (R2+X)
+let crossLastPress = 0;      // timestamp of last cross press (for double-tap detection)
+const CROSS_DOUBLE_TAP_MS = 300;
 let desktopSwitchCooldown = 0;  // timestamp until next desktop switch allowed
 const DESKTOP_SWITCH_THRESHOLD = 0.85;  // both sticks must be past this
 const DESKTOP_SWITCH_COOLDOWN = 600;    // ms between switches
@@ -219,6 +222,15 @@ function createMenubar() {
   });
 
   mb.on("after-create-window", () => sendState());
+}
+
+function sendGameInput(buttonId) {
+  if (!gameWindow || gameWindow.isDestroyed()) return;
+  gameWindow.webContents.send("game-input", {
+    buttonId,
+    held: { ...held },
+    stickX, stickY, rStickX, rStickY,
+  });
 }
 
 function sendState() {
@@ -355,6 +367,18 @@ function startMouseLoop() {
         console.log("Desktop switch: RIGHT");
       }
     }
+
+    // ── Send stick data to game ──
+    if (gameWindow && !gameWindow.isDestroyed()) {
+      const hasStick = Math.abs(stickX) > 0.5 || Math.abs(stickY) > 0.5 ||
+                       Math.abs(rStickX) > 0.5 || Math.abs(rStickY) > 0.5;
+      if (hasStick) {
+        gameWindow.webContents.send("game-input", {
+          buttonId: null, held: { ...held },
+          stickX, stickY, rStickX, rStickY,
+        });
+      }
+    }
   }, MOUSE_TICK);
 }
 
@@ -405,6 +429,8 @@ function fireSpecial(action) {
     mouse.leftClick().catch((e) => console.error("Mouse click error:", e.message));
   } else if (action.special === "mouse_right_click") {
     mouse.rightClick().catch((e) => console.error("Mouse right click error:", e.message));
+  } else if (action.special === "mouse_double_click") {
+    mouse.doubleClick(Button.LEFT).catch((e) => console.error("Mouse double click error:", e.message));
   } else if (action.special === "selection_mode") {
     if (!selectionMode) {
       selectionMode = true;
@@ -421,6 +447,7 @@ function fireSpecial(action) {
 // Called when modifier is released without being used as modifier (one-shot)
 function handleButton(buttonId) {
   console.log(`Button: ${buttonId}`);
+  sendGameInput(buttonId);
   const action = resolveAction(buttonId);
   if (!action) return;
 
@@ -438,6 +465,28 @@ function handleButton(buttonId) {
 // Called on button press — fires once then starts auto-repeat
 function handleButtonPress(buttonId) {
   console.log(`Button press: ${buttonId}`);
+  sendGameInput(buttonId);
+
+  // Double-tap on cross (no modifiers) → mouse double click
+  if (buttonId === "cross" && !held.r1 && !held.r2 && !held.l1 && !held.l2) {
+    const now = Date.now();
+    if (now - crossLastPress < CROSS_DOUBLE_TAP_MS) {
+      // Second tap → double click, cancel pending single tap
+      crossLastPress = 0;
+      if (doubleTapTimers.cross) { clearTimeout(doubleTapTimers.cross); delete doubleTapTimers.cross; }
+      if (buttonRepeatTimers.cross) {
+        if (buttonRepeatTimers.cross.delay) clearTimeout(buttonRepeatTimers.cross.delay);
+        if (buttonRepeatTimers.cross.interval) clearInterval(buttonRepeatTimers.cross.interval);
+        delete buttonRepeatTimers.cross;
+      }
+      fireSpecial(ACTIONS.mouse_double_click);
+      console.log("Double-tap cross → double click");
+      if (mb.window && !mb.window.isDestroyed()) mb.window.webContents.send("button-flash", buttonId);
+      return;
+    }
+    crossLastPress = now;
+  }
+
   const action = resolveAction(buttonId);
   if (!action) return;
 
@@ -586,6 +635,21 @@ ipcMain.on("update-dictation-provider", (_event, provider) => {
 
 ipcMain.on("request-state", () => sendState());
 ipcMain.on("quit-app", () => app.quit());
+
+ipcMain.on("open-game", () => {
+  if (gameWindow && !gameWindow.isDestroyed()) {
+    gameWindow.focus();
+    return;
+  }
+  gameWindow = new BrowserWindow({
+    width: 600,
+    height: 500,
+    title: "Quest // Entrainement",
+    webPreferences: { nodeIntegration: true, contextIsolation: false },
+  });
+  gameWindow.loadFile(path.join(__dirname, "game.html"));
+  gameWindow.on("closed", () => { gameWindow = null; });
+});
 
 // ─── App lifecycle ──────────────────────────────────────────────────────────
 app.commandLine.appendSwitch("disable-backgrounding-occluded-windows", "true");

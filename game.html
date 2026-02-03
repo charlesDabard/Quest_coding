@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Quest // Entrainement</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "SF Mono", "Fira Code", "Courier New", monospace;
+      background: #0a0a0f;
+      color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      height: 4px;
+      background: #1a1a2e;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0ff, #b44aff);
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* ── Main area ── */
+    .game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 40px;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #0ff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .action-name {
+      font-size: 48px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.1;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+      transition: all 0.3s;
+    }
+
+    .action-desc {
+      font-size: 18px;
+      color: #8e8e93;
+      text-align: center;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #444;
+      letter-spacing: 1px;
+    }
+
+    /* ── Success flash ── */
+    .game-area.success .action-name {
+      color: #30d158;
+      text-shadow: 0 0 40px rgba(48, 209, 88, 0.6);
+      transform: scale(1.1);
+    }
+
+    /* ── Footer stats ── */
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 32px;
+      border-top: 1px solid #1a1a2e;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0ff;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── Done screen ── */
+    .done-screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+    .done-screen.visible {
+      display: flex;
+    }
+    .done-title {
+      font-size: 42px;
+      font-weight: 900;
+      color: #30d158;
+      text-shadow: 0 0 30px rgba(48, 209, 88, 0.4);
+    }
+    .done-sub {
+      font-size: 16px;
+      color: #8e8e93;
+    }
+    .restart-btn {
+      margin-top: 20px;
+      padding: 12px 32px;
+      background: none;
+      border: 1px solid #0ff;
+      color: #0ff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .restart-btn:hover {
+      background: #0ff;
+      color: #0a0a0f;
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress"></div>
+  </div>
+
+  <div class="game-area" id="game-area">
+    <div class="step-label" id="step-label">1 / 20</div>
+    <div class="action-name" id="action-name">...</div>
+    <div class="action-desc" id="action-desc">...</div>
+    <div class="hint" id="hint">En attente...</div>
+  </div>
+
+  <div class="done-screen" id="done-screen">
+    <div class="done-title">TERMINE</div>
+    <div class="done-sub" id="done-sub">...</div>
+    <button class="restart-btn" id="restart-btn">REJOUER</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" id="score">0</div>
+      <div class="stat-label">Score</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="streak">0</div>
+      <div class="stat-label">Streak</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="best-streak">0</div>
+      <div class="stat-label">Meilleur</div>
+    </div>
+  </div>
+
+  <script src="game-renderer.js"></script>
+</body>
+</html>

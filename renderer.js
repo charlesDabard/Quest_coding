@@ -4,6 +4,7 @@ const dot = document.getElementById("dot");
 const statusText = document.getElementById("status-text");
 const mappingList = document.getElementById("mapping-list");
 const quitBtn = document.getElementById("quit-btn");
+const gameBtn = document.getElementById("game-btn");
 const resetBtn = document.getElementById("reset-btn");
 const dictationSelect = document.getElementById("dictation-provider");
 
@@ -110,6 +111,7 @@ resetBtn.addEventListener("click", () => {
   }
 });
 
+gameBtn.addEventListener("click", () => ipcRenderer.send("open-game"));
 quitBtn.addEventListener("click", () => ipcRenderer.send("quit-app"));
 
 ipcRenderer.send("request-state");
