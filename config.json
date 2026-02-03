@@ -1,23 +1,30 @@
 {
-  "mapping": {
-    "dpad_up": "arrow_up",
-    "dpad_down": "arrow_down",
-    "dpad_left": "arrow_left",
-    "dpad_right": "arrow_right",
-    "cross": "enter",
-    "circle": "dictation",
-    "square": "backspace",
-    "triangle": "shift_tab",
-    "l1": "undo",
-    "r1": "redo",
-    "l2": "scroll_up",
-    "r2": "scroll_down",
-    "l3": "copy",
-    "r3": "paste",
-    "options": "tab",
-    "create": "ctrl_c",
-    "mute": "escape",
-    "touchpad": "switch_app"
-  },
-  "dictationProvider": "superwhisper"
+  "version": 2,
+  "activeProfile": "default",
+  "profiles": {
+    "default": {
+      "mapping": {
+        "dpad_up": "arrow_up",
+        "dpad_down": "arrow_down",
+        "dpad_left": "arrow_left",
+        "dpad_right": "arrow_right",
+        "cross": "enter",
+        "circle": "dictation",
+        "square": "backspace",
+        "triangle": "shift_tab",
+        "l1": "undo",
+        "r1": "redo",
+        "l2": "scroll_up",
+        "r2": "scroll_down",
+        "l3": "copy",
+        "r3": "paste",
+        "options": "tab",
+        "create": "ctrl_c",
+        "mute": "escape",
+        "touchpad": "switch_app"
+      },
+      "dictationProvider": "superwhisper",
+      "settings": {}
+    }
+  }
 }

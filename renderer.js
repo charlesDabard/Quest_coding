@@ -7,6 +7,10 @@ const quitBtn = document.getElementById("quit-btn");
 const gameBtn = document.getElementById("game-btn");
 const resetBtn = document.getElementById("reset-btn");
 const dictationSelect = document.getElementById("dictation-provider");
+const profileSelect = document.getElementById("profile-select");
+const newProfileBtn = document.getElementById("new-profile-btn");
+const deleteProfileBtn = document.getElementById("delete-profile-btn");
+const renameProfileBtn = document.getElementById("rename-profile-btn");
 
 let currentState = null;
 
@@ -17,7 +21,7 @@ const BUTTON_GROUPS = [
   { label: "Bumpers",   ids: ["l1", "r1"] },
   { label: "Triggers",  ids: ["l2", "r2"] },
   { label: "Sticks",    ids: ["l3", "r3"] },
-  { label: "Systeme",   ids: ["options", "create", "mute", "touchpad"] },
+  { label: "Systeme",   ids: ["options", "create", "mute", "touchpad", "ps"] },
 ];
 
 function render(state) {
@@ -26,10 +30,26 @@ function render(state) {
   // Connection
   if (state.connected) {
     dot.classList.add("on");
+    dot.classList.remove("reconnecting");
+    statusText.classList.remove("reconnecting");
     statusText.textContent = "Manette connectee";
   } else {
     dot.classList.remove("on");
-    statusText.textContent = "Deconnectee";
+    dot.classList.add("reconnecting");
+    statusText.classList.add("reconnecting");
+    statusText.textContent = "Reconnexion...";
+  }
+
+  // Profiles
+  if (state.profiles) {
+    profileSelect.innerHTML = "";
+    for (const name of state.profiles) {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      if (name === state.activeProfile) opt.selected = true;
+      profileSelect.appendChild(opt);
+    }
   }
 
   // Dictation provider
@@ -94,6 +114,14 @@ function render(state) {
 // ── IPC ──
 ipcRenderer.on("state", (_event, state) => render(state));
 
+const errorToast = document.getElementById("error-toast");
+
+ipcRenderer.on("config-error", (_event, message) => {
+  errorToast.textContent = "Erreur de sauvegarde";
+  errorToast.classList.add("visible");
+  setTimeout(() => errorToast.classList.remove("visible"), 3000);
+});
+
 ipcRenderer.on("button-flash", (_event, buttonId) => {
   const row = document.querySelector(`.mapping-row[data-button="${buttonId}"]`);
   if (!row) return;
@@ -108,6 +136,32 @@ dictationSelect.addEventListener("change", () => {
 resetBtn.addEventListener("click", () => {
   if (confirm("Remettre le mapping par defaut ?")) {
     ipcRenderer.send("reset-mapping");
+  }
+});
+
+profileSelect.addEventListener("change", () => {
+  ipcRenderer.send("switch-profile", profileSelect.value);
+});
+
+newProfileBtn.addEventListener("click", () => {
+  const name = prompt("Nom du nouveau profil :");
+  if (name && name.trim()) ipcRenderer.send("create-profile", name.trim());
+});
+
+renameProfileBtn.addEventListener("click", () => {
+  const oldName = profileSelect.value;
+  if (oldName === "default") return alert("Impossible de renommer le profil par defaut.");
+  const newName = prompt(`Renommer "${oldName}" en :`, oldName);
+  if (newName && newName.trim() && newName.trim() !== oldName) {
+    ipcRenderer.send("rename-profile", { oldName, newName: newName.trim() });
+  }
+});
+
+deleteProfileBtn.addEventListener("click", () => {
+  const name = profileSelect.value;
+  if (name === "default") return alert("Impossible de supprimer le profil par defaut.");
+  if (confirm(`Supprimer le profil "${name}" ?`)) {
+    ipcRenderer.send("delete-profile", name);
   }
 });
 

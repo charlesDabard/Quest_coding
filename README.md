@@ -1,26 +1,31 @@
 <p align="center">
-  <img src="assets/logo.svg" width="400" alt="Quest">
+  <img src="assets/logo.svg" width="420" alt="Quest">
 </p>
 
 <p align="center">
-  <code>// MANETTE PS5 → CONTROLE TON MAC</code>
+  <strong>Ta manette PS5 pilote ton Mac. Point.</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/macOS-11.3+-0ff?style=flat-square&logo=apple&logoColor=0ff&labelColor=0a0a0f" alt="macOS">
   <img src="https://img.shields.io/badge/DualSense-USB%20%7C%20BT-b44aff?style=flat-square&logo=playstation&logoColor=b44aff&labelColor=0a0a0f" alt="DualSense">
   <img src="https://img.shields.io/badge/Electron-34-ff2d95?style=flat-square&logo=electron&logoColor=ff2d95&labelColor=0a0a0f" alt="Electron">
+  <img src="https://img.shields.io/badge/tests-32%20pass-30d158?style=flat-square&labelColor=0a0a0f" alt="Tests">
 </p>
 
+<br>
+
+<p align="center">
+  <code>Branche ta manette. Controle tout. Zero config.</code>
+</p>
+
+<br>
+
 ---
 
-```
-> Branche ta manette. Controle tout. Zero config.
-```
+<br>
 
----
-
-## `// INSTALLER`
+## Quickstart
 
 ```bash
 git clone https://github.com/charlesDabard/Quest_coding.git
@@ -29,180 +34,289 @@ npm install
 npm start
 ```
 
-> macOS 11.3+ / Node 18+ / `xcode-select --install`
+> **Prerequis** : macOS 11.3+ / Node 18+ / `xcode-select --install`
+
+<br>
 
 ---
 
-## `// X`
+<br>
 
-Valider. Comme quand tu dis "oui".
+## Cheat Sheet
 
-| Appui | Ca fait quoi |
+> Tout ce que ta manette sait faire, en un coup d'oeil.
+
+<br>
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### X — Valider
+
+| Appui | Action |
 |:---:|:---|
-| **X** | Entree. Valider. |
-| **R1 + X** | Tiens le clic souris. Pour deplacer des trucs. |
-| **R2 + X** | Tiens le clic souris. Pour selectionner du texte. |
+| **X** | Entree |
+| **R1 + X** | Clic gauche |
+| **R1 + X + X** | Double clic |
+| **L1 + X** | Clic droit |
+| **R2 + X** | Selection (drag) |
 
-> Reste appuye sur R1 ou R2, puis appuie sur X. Tant que tu tiens, le clic reste enfonce. Tu laches, ca lache.
+</td>
+<td width="50%" valign="top">
 
----
+### O — Parler
 
-## `// O`
-
-Parler a l'ordi. Tu parles, il ecrit. Magie.
-
-| Appui | Ca fait quoi |
+| Appui | Action |
 |:---:|:---|
-| **O** | Lance la dictee vocale. Appuie encore pour arreter. |
+| **O** | Dictee vocale on/off |
 
-Deux moteurs au choix (dans le menu Quest) :
-- **Apple Dictation** — celui de base
-- **SuperWhisper** — plus costaud
+Moteurs : **Apple Dictation** ou **SuperWhisper**
 
----
+</td>
+</tr>
+<tr>
+<td valign="top">
 
-## `// []`
+### [] — Effacer
 
-Effacer. T'as ecrit une betise ? Pouf, c'est parti.
-
-| Appui | Ca fait quoi |
+| Appui | Action |
 |:---:|:---|
-| **[]** | Efface une lettre. Juste une. |
-| **R1 + []** | Efface un mot entier. D'un coup. |
-| **R2 + []** | Efface toute la ligne. Pchhhh. |
-| **L2 + R2 + []** | Efface TOUT. La page entiere. Boum. |
+| **[]** | 1 lettre |
+| **R1 + []** | 1 mot |
+| **R2 + []** | 1 ligne |
+| **L1 + []** | Couper (Cmd+X) |
+| **L2 + R2 + []** | TOUT |
 
-> Plus tu rajoutes de boutons, plus ca efface.
+> Plus tu empiles, plus ca efface.
 
----
+</td>
+<td valign="top">
 
-## `// TRIANGLE`
+### Triangle — Modes
 
-Changer de mode. Comme changer de chapeau.
-
-| Appui | Ca fait quoi |
+| Appui | Action |
 |:---:|:---|
-| **Triangle** | Shift+Tab. Change de mode dans Claude Code. |
-| **L1 + Triangle** | Espace. La barre d'espace, quoi. |
-| **R1 + Triangle** | Echap. Ferme le truc qui t'embete. |
-| **R2 + Triangle** | Spotlight. Cherche n'importe quoi sur ton Mac. |
+| **Triangle** | Shift+Tab |
+| **L1 + Triangle** | Espace |
+| **R1 + Triangle** | Echap |
+| **R2 + Triangle** | Spotlight |
 
----
+</td>
+</tr>
+</table>
 
-## `// D-PAD`
+<br>
 
-Les fleches. Haut bas gauche droite. Comme dans un jeu.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-| Appui | Ca fait quoi |
+### D-Pad — Fleches
+
+| | |
 |:---:|:---|
 | **Haut** | Fleche haut |
 | **Bas** | Fleche bas |
 | **Gauche** | Fleche gauche |
 | **Droite** | Fleche droite |
 
----
+</td>
+<td width="50%" valign="top">
 
-## `// STICK GAUCHE`
+### Petits boutons
 
-C'est ta souris. Tu bouges le stick, la fleche bouge.
-
-```
-Doucement    →  Precision. La fleche bouge tout doucement.
-Un peu plus  →  Ca accelere.
-A fond       →  VROOOM.
-
-R1 appuye    →  Tout va 2x plus vite.
-```
-
-Au debut c'est un peu lent (pour pas partir n'importe ou). Apres 0.5 seconde, ca accelere tout seul.
-
----
-
-## `// STICK DROIT`
-
-C'est pour scroller. Comme faire tourner la molette d'une souris.
-
-```
-Un petit peu  →  Ca scroll doucement.
-Un peu plus   →  Ca scroll bien.
-A fond        →  CA SCROLL SUPER VITE.
-
-R1 appuye     →  Tout va 2x plus vite.
-```
-
----
-
-## `// LES DEUX STICKS`
-
-Les deux sticks a fond dans la meme direction en meme temps = changer de bureau.
-
-```
-[<===] + [<===]  →  Bureau de gauche
-[===>] + [===>]  →  Bureau de droite
-```
-
----
-
-## `// LES PETITS BOUTONS`
-
-| Bouton | Ca fait quoi |
+| | |
 |:---:|:---|
-| **L1** | Annuler. Oups, je voulais pas faire ca. |
-| **R1** | Re-faire. En fait si, je voulais. |
-| **L2** | Monter la page. Ascenseur qui monte. |
-| **R2** | Descendre la page. Ascenseur qui descend. |
-| **L3** | Copier. Tu prends une photo dans ta tete. |
-| **R3** | Coller. Tu poses la photo quelque part. |
-| **Options** | Tab. Passer au truc suivant. |
-| **Create** | Stop. On arrete tout. |
-| **Mute** | Echap. Laisse-moi tranquille. |
-| **Touchpad** | Changer d'app. Comme zapper la tele. |
+| **Options** | Tab |
+| **Create** | Ctrl+C (stop) |
+| **Mute** | Echap |
+| **Touchpad** | Ctrl+C |
+| **L3** | Copier |
+| **R3** | Coller |
 
-> L1, R1, L2, R2 sont aussi des **modifiers** : tu les tiens appuyes avec un autre bouton pour declencher des combos (voir les sections au-dessus).
+</td>
+</tr>
+</table>
+
+<br>
 
 ---
 
-## `// CLAUDE CODE`
+<br>
 
-Quest est fait pour piloter Claude Code avec ta manette. Tu dictes, tu navigues, tu valides, tu effaces — tout sans toucher le clavier.
+## Sticks
 
-Combiner avec les **formules vocales** :
+<table>
+<tr>
+<td width="33%" valign="top">
 
-| Formule | Ca fait quoi |
+### Stick gauche — Souris
+
+```
+Doucement  →  Precision
+Un peu     →  Normal
+A fond     →  VROOOM
+
++ R1       →  x2
+```
+
+Acceleration progressive apres 0.5s.
+
+</td>
+<td width="33%" valign="top">
+
+### Stick droit — Scroll
+
+```
+Un peu     →  Doucement
+Plus       →  Normal
+A fond     →  TURBO
+
++ R1       →  x2
+```
+
+3 paliers avec anti-drift.
+
+</td>
+<td width="33%" valign="top">
+
+### Les deux — Bureau
+
+```
+←← + ←←   →  Bureau gauche
+→→ + →→   →  Bureau droite
+```
+
+Les deux sticks a fond, meme direction.
+
+</td>
+</tr>
+</table>
+
+<br>
+
+---
+
+<br>
+
+## Gachettes analogiques
+
+> L2 et R2 ne sont pas que des boutons. Plus tu appuies fort, plus ca scroll vite.
+
+| Gachette | Action solo | Action analogique |
+|:---:|:---|:---|
+| **L1** | Annuler (Cmd+Z) | Modificateur combo |
+| **R1** | Refaire (Cmd+Shift+Z) | Modificateur combo |
+| **L2** | Page Up | Scroll proportionnel haut |
+| **R2** | Page Down | Scroll proportionnel bas |
+
+> L1, R1, L2, R2 sont des **modifiers** : tiens-les avec un autre bouton pour les combos.
+
+<br>
+
+---
+
+<br>
+
+## Touchpad
+
+| Geste | Action |
+|:---:|:---|
+| **Clic** | Ctrl+C (interrompre) |
+| **Swipe gauche** | Bureau precedent |
+| **Swipe droite** | Bureau suivant |
+
+<br>
+
+---
+
+<br>
+
+## Profils
+
+Plusieurs mappings, un seul bouton pour switcher.
+
+| Action | Comment |
 |:---|:---|
-| **"Reveille toi mon Kevin"** | `git pull` — recupere le code de GitHub |
-| **"Sauvegarde mon Kevin"** | `git commit` — sauvegarde en local |
-| **"Pousse mon Kevin"** | `git commit + push` — envoie sur GitHub |
+| Changer de profil | **Bouton PS** — cycle entre les profils |
+| Creer un profil | Menu Quest → **+** |
+| Renommer | Menu Quest → **crayon** |
+| Supprimer | Menu Quest → **x** |
+| Personnaliser | Menu Quest → change n'importe quel bouton |
+| Reset | Menu Quest → **Reset** |
 
-> Tu parles a l'IA avec la dictee (O), tu navigues avec le D-pad, tu valides avec X, tu effaces avec []. Tout depuis le canape.
-
----
-
-## `// PERSONNALISER`
-
-Clique sur l'icone Quest dans la barre de menus. Change n'importe quel bouton avec le menu deroulant. C'est sauvegarde tout seul.
-
-Bouton **Reset** pour tout remettre comme avant.
+<br>
 
 ---
 
-## `// PERMISSIONS`
+<br>
 
-| Quoi | Ou |
+## Entrainement
+
+Un mini-jeu Guitar Hero integre pour apprendre tous les boutons et combos.
+
+```
+Menu Quest  →  Entrainement
+```
+
+- 20 challenges aleatoires par session
+- Score + streak + meilleur streak
+- Indicateurs L1/R1/L2/R2 en temps reel
+- Boutons simples, combos, sticks, gachettes, swipes
+
+<br>
+
+---
+
+<br>
+
+## Claude Code
+
+Quest est fait pour piloter **Claude Code** depuis ta manette. Tu dictes, tu navigues, tu valides, tu effaces — tout sans toucher le clavier.
+
+**Formules vocales :**
+
+| Tu dis | Ca fait |
+|:---|:---|
+| *"Reveille toi mon Kevin"* | `git pull` — recupere le code |
+| *"Sauvegarde mon Kevin"* | `git commit` — sauvegarde en local |
+| *"Pousse mon Kevin"* | `git commit + push` — envoie sur GitHub |
+
+> Dicte avec **O**, navigue avec le **D-pad**, valide avec **X**, efface avec **[]**. Tout depuis le canape.
+
+<br>
+
+---
+
+<br>
+
+## Permissions
+
+| Permission | Chemin |
 |:---|:---|
 | Accessibilite | Reglages Systeme → Confidentialite → Accessibilite |
 | Microphone | Reglages Systeme → Confidentialite → Microphone |
 
+<br>
+
 ---
 
-## `// STACK`
+<br>
+
+## Stack
 
 ```
 Electron · menubar · dualsense-ts · nut-js · osascript
 ```
 
+<br>
+
 ---
 
 <p align="center">
-  <sub>// construit avec une manette et du cafe</sub>
+  <br>
+  <sub>construit avec une manette et du cafe</sub>
+  <br>
+  <br>
 </p>

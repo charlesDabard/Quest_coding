@@ -4,7 +4,8 @@
   "description": "Manette PS5 to keyboard actions — macOS menu bar app",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "node --test test/*.test.js"
   },
   "keywords": [],
   "author": "",
