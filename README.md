@@ -100,6 +100,8 @@ npm start
 
 Moteurs : **Apple Dictation** ou **SuperWhisper**
 
+> ⚠️ **Un seul moteur a la fois.** Si tu utilises SuperWhisper, desactive la dictee Apple dans Reglages → Clavier → Dictee → OFF. Sinon les deux captent ton audio et le texte s'ecrit en double.
+
 </td>
 </tr>
 <tr>

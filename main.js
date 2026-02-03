@@ -787,21 +787,29 @@ async function toggleDictation() {
   if (dictationBusy) return;
   dictationBusy = true;
 
+  // SuperWhisper: Right Cmd toggles on/off, track state + cooldown
+  if (dictationProvider === "superwhisper") {
+    await fireKeys([Key.RightCmd]);
+    if (!dictationActive) {
+      dictationActive = true;
+      setLedColor(255, 50, 100);  // red/pink = recording
+      console.log("Dictation: SuperWhisper started");
+    } else {
+      dictationActive = false;
+      setLedColor(0, 255, 255);  // back to cyan
+      console.log("Dictation: SuperWhisper stopped");
+    }
+    setTimeout(() => { dictationBusy = false; }, 1000);  // cooldown: block rapid re-toggle
+    return;
+  }
+
+  // Apple Dictation: Escape to stop
   if (dictationActive) {
     await fireKeys([Key.Escape]);
     dictationActive = false;
     setLedColor(0, 255, 255);  // back to cyan
     console.log("Dictation: stopped");
     setTimeout(() => { dictationBusy = false; }, 600);  // cooldown: let macOS finish closing
-    return;
-  }
-
-  if (dictationProvider === "superwhisper") {
-    await fireKeys([Key.RightCmd]);
-    dictationBusy = false;
-    setLedColor(255, 50, 100);  // red/pink flash for SuperWhisper
-    setTimeout(() => setLedColor(0, 255, 255), 2000);  // back to cyan after 2s
-    console.log("Dictation: SuperWhisper triggered (Right Cmd)");
     return;
   }
 
