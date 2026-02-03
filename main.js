@@ -63,6 +63,9 @@ const ACTIONS = {
   prev_tab:      { label: "Onglet prec. (Ctrl+Shift+Tab)", cat: "Systeme", keys: [Key.LeftControl, Key.LeftShift, Key.Tab] },
   save:          { label: "Sauvegarder (Cmd+S)",      cat: "Systeme",     keys: [Key.LeftCmd, Key.S] },
   find:          { label: "Rechercher (Cmd+F)",        cat: "Systeme",     keys: [Key.LeftCmd, Key.F] },
+  left_cmd:      { label: "Left Command",              cat: "Systeme",     keys: [Key.LeftCmd] },
+  desktop_left:  { label: "Bureau gauche",  cat: "Systeme",     special: "desktop_left" },
+  desktop_right: { label: "Bureau droite", cat: "Systeme",     special: "desktop_right" },
 
   // Special
   dictation:         { label: "Dictee vocale",            cat: "Special",     special: "dictation" },
@@ -105,10 +108,15 @@ const COMBOS = {
   square: [
     { held: ["l2", "r2"], action: "select_all_delete" },  // L2+R2+□ → tout supprimer
     { held: ["r2"],       action: "delete_line" },         // R2+□ → suppr. ligne
-    { held: ["r1"],       action: "selection_mode" },       // R1+□ → selection (Shift held)
+    { held: ["r1"],       action: "delete_word" },         // R1+□ → suppr. mot
   ],
   cross: [
-    { held: ["r1"],       action: "mouse_click" },         // R1+X → clic souris
+    { held: ["r2"],       action: "selection_mode" },       // R2+X → selection (Shift held)
+    { held: ["r1"],       action: "selection_mode" },          // R1+X → maintien clic gauche
+  ],
+  triangle: [
+    { held: ["r1"],       action: "escape" },                // R1+△ → Echap
+    { held: ["r2"],       action: "spotlight" },              // R2+△ → Cmd+Space (Spotlight)
   ],
 };
 
@@ -118,11 +126,15 @@ let connected = false;
 let dictationBusy = false;
 let dictationActive = false;
 let mapping = { ...DEFAULT_MAPPING };
+let dictationProvider = "apple";  // "apple" | "superwhisper"
 
 // Modifier held state
 const held = { l1: false, r1: false, l2: false, r2: false };
 let usedAsModifier = { l1: false, r1: false, l2: false, r2: false };
-let selectionMode = false;  // true when Shift is held for selection (R1+□)
+let selectionMode = false;  // true when mouse button is held for drag-select (R2+X)
+let desktopSwitchCooldown = 0;  // timestamp until next desktop switch allowed
+const DESKTOP_SWITCH_THRESHOLD = 0.85;  // both sticks must be past this
+const DESKTOP_SWITCH_COOLDOWN = 600;    // ms between switches
 
 // Hold-to-repeat: emulate keyboard repeat with setInterval
 const REPEAT_DELAY = 400;     // ms before repeat starts
@@ -135,11 +147,15 @@ const MOUSE_ACCEL = 2.5;      // acceleration curve exponent
 const MOUSE_DEADZONE = 0.15;  // ignore small stick drift
 const MOUSE_TICK = 16;        // ~60fps
 let stickX = 0, stickY = 0;
+let stickActiveStart = 0;     // timestamp when stick first moved
+const MOUSE_SPEED_MIN = 0.8;  // initial speed multiplier
+const MOUSE_SPEED_MAX = 1.2;  // full speed multiplier after ramp
+const MOUSE_RAMP_MS = 500;    // ms to go from min to max
 let rStickX = 0, rStickY = 0;
 let mouseLoopId = null;
 // Scroll: 3 speed tiers based on stick deflection
 const SCROLL_TIERS = [
-  { threshold: 0.15, speed: 2 },   // slight tilt → slow
+  { threshold: 0.25, speed: 2 },   // slight tilt → slow (higher deadzone to avoid drift)
   { threshold: 0.50, speed: 8 },   // medium tilt → fast
   { threshold: 0.85, speed: 25 },  // full tilt → very fast
 ];
@@ -156,6 +172,7 @@ function loadConfig() {
     if (fs.existsSync(CONFIG_PATH)) {
       const data = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
       if (data.mapping) mapping = { ...DEFAULT_MAPPING, ...data.mapping };
+      if (data.dictationProvider) dictationProvider = data.dictationProvider;
     }
   } catch (err) {
     console.error("Config load error:", err.message);
@@ -164,7 +181,7 @@ function loadConfig() {
 
 function saveConfig() {
   try {
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify({ mapping }, null, 2) + "\n");
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify({ mapping, dictationProvider }, null, 2) + "\n");
   } catch (err) {
     console.error("Config save error:", err.message);
   }
@@ -188,6 +205,16 @@ function createMenubar() {
     app.dock.hide();
     loadConfig();
     initController();
+
+    // Fix: bypass buggy menubar click handler (clearInterval vs clearTimeout bug)
+    mb.tray.removeAllListeners("click");
+    mb.tray.on("click", () => {
+      if (mb.window && mb.window.isVisible()) {
+        mb.hideWindow();
+      } else {
+        mb.showWindow();
+      }
+    });
   });
 
   mb.on("after-create-window", () => sendState());
@@ -200,7 +227,7 @@ function sendState() {
     actionList[id] = { label: a.label, cat: a.cat };
   }
   mb.window.webContents.send("state", {
-    connected, mapping, actions: actionList, buttonLabels: BUTTON_LABELS,
+    connected, mapping, actions: actionList, buttonLabels: BUTTON_LABELS, dictationProvider,
   });
 }
 
@@ -236,11 +263,11 @@ function initController() {
       });
       input.on("release", () => {
         held[buttonId] = false;
-        // End selection mode if R1 is released while selecting
-        if (buttonId === "r1" && selectionMode) {
+        // End selection mode if R1 or R2 is released while selecting
+        if ((buttonId === "r1" || buttonId === "r2") && selectionMode) {
           selectionMode = false;
-          keyboard.releaseKey(Key.LeftShift).catch((e) => console.error("Shift release error:", e.message));
-          console.log("Selection mode OFF (R1 released)");
+          mouse.releaseButton(Button.LEFT).catch((e) => console.error("Mouse release error:", e.message));
+          console.log(`Selection mode OFF (${buttonId} released)`);
         }
         if (!usedAsModifier[buttonId]) {
           // Was not used as modifier → fire its own mapped action
@@ -271,8 +298,13 @@ function startMouseLoop() {
     const ax = Math.abs(stickX) < MOUSE_DEADZONE ? 0 : stickX;
     const ay = Math.abs(stickY) < MOUSE_DEADZONE ? 0 : stickY;
     if (ax !== 0 || ay !== 0) {
+      const now = Date.now();
+      if (stickActiveStart === 0) stickActiveStart = now;
+      const elapsed = now - stickActiveStart;
+      const ramp = Math.min(elapsed / MOUSE_RAMP_MS, 1);
+      const timeMult = MOUSE_SPEED_MIN + ramp * (MOUSE_SPEED_MAX - MOUSE_SPEED_MIN);
       const boost = held.r1 ? 2 : 1;
-      const accel = (v) => Math.sign(v) * Math.pow(Math.abs(v), MOUSE_ACCEL) * MOUSE_SPEED * boost;
+      const accel = (v) => Math.sign(v) * Math.pow(Math.abs(v), MOUSE_ACCEL) * MOUSE_SPEED * timeMult * boost;
       try {
         const pos = await mouse.getPosition();
         const nx = pos.x + Math.round(accel(ax));
@@ -281,6 +313,8 @@ function startMouseLoop() {
       } catch (err) {
         console.error("Mouse error:", err.message);
       }
+    } else {
+      stickActiveStart = 0;  // reset ramp when stick is idle
     }
 
     // ── Right stick → scroll (3 tiers) ──
@@ -304,6 +338,20 @@ function startMouseLoop() {
         else if (dx < 0) await mouse.scrollLeft(-dx);
       } catch (err) {
         console.error("Scroll error:", err.message);
+      }
+    }
+
+    // ── Both sticks far left/right → switch desktop ──
+    const now2 = Date.now();
+    if (now2 > desktopSwitchCooldown) {
+      if (stickX < -DESKTOP_SWITCH_THRESHOLD && rStickX < -DESKTOP_SWITCH_THRESHOLD) {
+        desktopSwitchCooldown = now2 + DESKTOP_SWITCH_COOLDOWN;
+        fireSpecial(ACTIONS.desktop_left);
+        console.log("Desktop switch: LEFT");
+      } else if (stickX > DESKTOP_SWITCH_THRESHOLD && rStickX > DESKTOP_SWITCH_THRESHOLD) {
+        desktopSwitchCooldown = now2 + DESKTOP_SWITCH_COOLDOWN;
+        fireSpecial(ACTIONS.desktop_right);
+        console.log("Desktop switch: RIGHT");
       }
     }
   }, MOUSE_TICK);
@@ -345,9 +393,12 @@ function fireSpecial(action) {
   if (action.special === "dictation") {
     toggleDictation();
   } else if (action.special === "select_all_delete") {
+    console.log(">>> select_all_delete triggered");
     (async () => {
       await fireKeys([Key.LeftCmd, Key.A]);
+      await new Promise((r) => setTimeout(r, 150));
       await fireKeys([Key.Backspace]);
+      console.log(">>> select_all_delete done");
     })();
   } else if (action.special === "mouse_click") {
     mouse.leftClick().catch((e) => console.error("Mouse click error:", e.message));
@@ -356,9 +407,13 @@ function fireSpecial(action) {
   } else if (action.special === "selection_mode") {
     if (!selectionMode) {
       selectionMode = true;
-      keyboard.pressKey(Key.LeftShift).catch((e) => console.error("Shift press error:", e.message));
-      console.log("Selection mode ON (Shift held)");
+      mouse.pressButton(Button.LEFT).catch((e) => console.error("Mouse press error:", e.message));
+      console.log("Selection mode ON (mouse button held)");
     }
+  } else if (action.special === "desktop_left") {
+    exec("osascript -e 'tell application \"System Events\" to key code 123 using control down'");
+  } else if (action.special === "desktop_right") {
+    exec("osascript -e 'tell application \"System Events\" to key code 124 using control down'");
   }
 }
 
@@ -434,11 +489,11 @@ function handleButtonPress(buttonId) {
 
 // Called on button release — stops repeat
 function handleButtonRelease(buttonId) {
-  // End selection mode when square is released
-  if (buttonId === "square" && selectionMode) {
+  // End selection mode when cross is released
+  if (buttonId === "cross" && selectionMode) {
     selectionMode = false;
-    keyboard.releaseKey(Key.LeftShift).catch((e) => console.error("Shift release error:", e.message));
-    console.log("Selection mode OFF (Shift released)");
+    mouse.releaseButton(Button.LEFT).catch((e) => console.error("Mouse release error:", e.message));
+    console.log("Selection mode OFF (mouse button released)");
   }
 
   const timers = buttonRepeatTimers[buttonId];
@@ -461,6 +516,14 @@ async function toggleDictation() {
     return;
   }
 
+  if (dictationProvider === "superwhisper") {
+    await fireKeys([Key.RightCmd]);
+    dictationBusy = false;
+    console.log("Dictation: SuperWhisper triggered (Right Cmd)");
+    return;
+  }
+
+  // Apple Dictation via menu
   if (mb.window && mb.window.isVisible()) mb.hideWindow();
 
   setTimeout(() => {
@@ -486,7 +549,7 @@ async function toggleDictation() {
       dictationBusy = false;
       if (!err && stdout.trim() === "OK") {
         dictationActive = true;
-        console.log("Dictation: started");
+        console.log("Dictation: Apple started");
       } else {
         console.error("Dictation: no menu item found");
       }
@@ -511,9 +574,19 @@ ipcMain.on("reset-mapping", () => {
   sendState();
 });
 
+ipcMain.on("update-dictation-provider", (_event, provider) => {
+  if (provider === "apple" || provider === "superwhisper") {
+    dictationProvider = provider;
+    saveConfig();
+    console.log(`Dictation provider: ${provider}`);
+    sendState();
+  }
+});
+
 ipcMain.on("request-state", () => sendState());
 ipcMain.on("quit-app", () => app.quit());
 
 // ─── App lifecycle ──────────────────────────────────────────────────────────
+app.commandLine.appendSwitch("disable-backgrounding-occluded-windows", "true");
 app.on("ready", createMenubar);
 app.on("window-all-closed", (e) => e.preventDefault());

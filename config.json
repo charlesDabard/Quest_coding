@@ -18,5 +18,6 @@
     "create": "ctrl_c",
     "mute": "escape",
     "touchpad": "switch_app"
-  }
+  },
+  "dictationProvider": "superwhisper"
 }

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <code>Manette PS5 DualSense → macOS</code>
+  <code>// MANETTE PS5 → CONTROLE TON MAC</code>
 </p>
 
 <p align="center">
@@ -14,11 +14,13 @@
 
 ---
 
-App menu bar invisible. Branche ta manette. Controle ton Mac — clavier, souris, dictee vocale. Zero config.
+```
+> Branche ta manette. Controle tout. Zero config.
+```
 
 ---
 
-## Setup
+## `// INSTALLER`
 
 ```bash
 git clone https://github.com/charlesDabard/Quest_coding.git
@@ -27,65 +29,141 @@ npm install
 npm start
 ```
 
-> Prerequis : macOS 11.3+, Node 18+, `xcode-select --install`
+> macOS 11.3+ / Node 18+ / `xcode-select --install`
 
 ---
 
-## Mapping
+## `// LES BOUTONS`
 
-### Boutons
+Tu appuies, ca fait un truc. Simple.
 
-| Bouton | Action | Combo |
-|:---:|:---|:---|
-| **D-pad** | Fleches directionnelles | — |
-| **X** | Enter | R1+X → clic souris |
-| **O** | Dictee vocale on/off | — |
-| **[]** | Backspace (1 lettre) | R1+[] → mot · R2+[] → ligne · L2+R2+[] → tout |
-| **Triangle** | Shift+Tab (switch mode) | — |
-| **L1** | Undo | _modifier_ |
-| **R1** | Redo | _modifier_ |
-| **L2** | Scroll haut | _modifier_ |
-| **R2** | Scroll bas | _modifier_ |
-| **L3** | Copier | — |
-| **R3** | Coller | — |
-| **Options** | Tab | — |
-| **Create** | Ctrl+C (interrompre) | — |
-| **Mute** | Echap | — |
-| **Touchpad** | Cmd+Tab (switch app) | — |
-
-### Stick gauche
-
-Deplace le curseur souris. Acceleration non-lineaire — petit mouvement = precision, stick a fond = rapide.
-
-### Modifiers
-
-Maintiens **R1**, **R2**, **L1** ou **L2** puis appuie sur un autre bouton pour declencher un combo. Si le modifier est relache seul, son action propre se declenche.
+| Bouton | Ca fait quoi |
+|:---:|:---|
+| **D-pad** | Les fleches. Haut bas gauche droite. Comme dans un jeu. |
+| **X** | Valider. Comme quand tu dis "oui". |
+| **O** | Parler a l'ordi. Tu parles, il ecrit. Magie. |
+| **[]** | Effacer. T'as ecrit une betise ? Pouf, c'est parti. |
+| **Triangle** | Changer de mode. Comme changer de chapeau. |
+| **L1** | Annuler. Oups, je voulais pas faire ca. |
+| **R1** | Re-faire. En fait si, je voulais. |
+| **L2** | Monter la page. Comme un ascenseur qui monte. |
+| **R2** | Descendre la page. L'ascenseur descend. |
+| **L3** | Copier. Tu prends une photo dans ta tete. |
+| **R3** | Coller. Tu poses la photo quelque part. |
+| **Options** | Tab. Passer au truc suivant. |
+| **Create** | Stop. On arrete tout. |
+| **Mute** | Echap. Je veux plus, laisse-moi tranquille. |
+| **Touchpad** | Changer d'app. Comme zapper la tele. |
 
 ---
 
-## Personnalisation
+## `// LES COMBOS`
 
-L'UI dans la barre de menus permet de remapper chaque bouton via un dropdown. 40+ actions disponibles. Le mapping est sauvegarde dans `config.json`.
+Tu gardes un bouton appuye et tu appuies sur un autre. C'est comme des pouvoirs secrets.
 
-Bouton **Reset** pour revenir au mapping par defaut.
+### Effacer
+
+| Combo | Ca fait quoi |
+|:---:|:---|
+| **R1 + []** | Efface un mot. Tout le mot. D'un coup. |
+| **R2 + []** | Efface toute la ligne. Pchhhh. |
+| **L2 + R2 + []** | Efface TOUT. La page entiere. Boum. |
+
+### Souris
+
+| Combo | Ca fait quoi |
+|:---:|:---|
+| **R1 + X** | Tu restes appuye = tu tiens le clic. Pour deplacer des trucs. |
+| **R2 + X** | Pareil. Tiens le clic pour selectionner du texte. |
+
+### Navigation
+
+| Combo | Ca fait quoi |
+|:---:|:---|
+| **R1 + Triangle** | Echap. Ferme le truc qui t'embete. |
+| **R2 + Triangle** | Spotlight. Cherche n'importe quoi sur ton Mac. |
 
 ---
 
-## Permissions
+## `// LE STICK GAUCHE`
 
-| Permission | Ou |
+C'est ta souris. Tu bouges le stick, la fleche bouge.
+
+```
+Doucement     →  La fleche bouge doucement (precision)
+Un peu plus   →  Ca accelere
+A fond        →  VROOOM
+
+R1 appuye     →  Tout va 2x plus vite
+```
+
+Au debut c'est un peu lent (pour pas partir n'importe ou). Apres 0.5 seconde, ca accelere tout seul.
+
+---
+
+## `// LE STICK DROIT`
+
+C'est pour scroller. Comme faire tourner la molette d'une souris.
+
+```
+Un petit peu  →  Ca scroll doucement
+Un peu plus   →  Ca scroll bien
+A fond        →  CA SCROLL SUPER VITE
+
+R1 appuye     →  Tout va 2x plus vite
+```
+
+---
+
+## `// CHANGER DE BUREAU`
+
+Les deux sticks a fond a gauche en meme temps → bureau de gauche.
+Les deux sticks a fond a droite en meme temps → bureau de droite.
+
+```
+[<===] + [<===]  →  Bureau gauche
+[===>] + [===>]  →  Bureau droite
+```
+
+---
+
+## `// LA DICTEE VOCALE`
+
+Appuie sur **O** et parle. L'ordi ecrit ce que tu dis.
+
+Tu peux choisir entre deux moteurs dans le menu :
+- **Apple Dictation** — celui de base, deja installe
+- **SuperWhisper** — plus costaud, plus precis
+
+Le choix se fait dans la petite fenetre de Quest (clique sur l'icone en haut de l'ecran).
+
+---
+
+## `// PERSONNALISER`
+
+Clique sur l'icone Quest dans la barre de menus. Tu verras tous les boutons avec un menu deroulant. Change ce que tu veux. C'est sauvegarde automatiquement.
+
+Bouton **Reset** pour tout remettre comme avant.
+
+---
+
+## `// PERMISSIONS`
+
+| Quoi | Ou |
 |:---|:---|
 | Accessibilite | Reglages Systeme → Confidentialite → Accessibilite |
 | Microphone | Reglages Systeme → Confidentialite → Microphone |
 
 ---
 
-## Stack
+## `// STACK`
 
-[Electron](https://electronjs.org) + [menubar](https://github.com/nicjansma/menubar) · [dualsense-ts](https://github.com/nsfm/dualsense-ts) · [@nut-tree-fork/nut-js](https://github.com/nut-tree-fork/nut-js) · osascript
+```
+Electron · menubar · dualsense-ts · nut-js · osascript
+```
 
 ---
 
 <p align="center">
-  <sub>ISC · Construit avec une manette et du cafe.</sub>
+  <sub>// construit avec une manette et du cafe</sub>
 </p>

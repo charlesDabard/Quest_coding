@@ -5,6 +5,7 @@ const statusText = document.getElementById("status-text");
 const mappingList = document.getElementById("mapping-list");
 const quitBtn = document.getElementById("quit-btn");
 const resetBtn = document.getElementById("reset-btn");
+const dictationSelect = document.getElementById("dictation-provider");
 
 let currentState = null;
 
@@ -28,6 +29,11 @@ function render(state) {
   } else {
     dot.classList.remove("on");
     statusText.textContent = "Deconnectee";
+  }
+
+  // Dictation provider
+  if (state.dictationProvider) {
+    dictationSelect.value = state.dictationProvider;
   }
 
   // Group actions by category for <optgroup>
@@ -92,6 +98,10 @@ ipcRenderer.on("button-flash", (_event, buttonId) => {
   if (!row) return;
   row.classList.add("flash");
   setTimeout(() => row.classList.remove("flash"), 300);
+});
+
+dictationSelect.addEventListener("change", () => {
+  ipcRenderer.send("update-dictation-provider", dictationSelect.value);
 });
 
 resetBtn.addEventListener("click", () => {
