@@ -117,6 +117,7 @@ const COMBOS = {
   triangle: [
     { held: ["r1"],       action: "escape" },                // R1+△ → Echap
     { held: ["r2"],       action: "spotlight" },              // R2+△ → Cmd+Space (Spotlight)
+    { held: ["l1"],       action: "space" },                  // L1+△ → Espace
   ],
 };
 
