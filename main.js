@@ -7,6 +7,12 @@ const path = require("path");
 const fs = require("fs");
 const { mergeSettings, migrateConfig, resolveScrollTier } = require("./lib/logic");
 
+// When launched via `open Electron.app --args /path/to/quest`, chdir to project root
+const extraArgs = process.argv.slice(2).filter((a) => !a.startsWith("-"));
+if (extraArgs.length > 0 && fs.existsSync(extraArgs[0])) {
+  process.chdir(extraArgs[0]);
+}
+
 keyboard.config.autoDelayMs = 0;
 
 // ─── Action catalogue ────────────────────────────────────────────────────────

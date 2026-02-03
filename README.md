@@ -355,12 +355,47 @@ La manette se reconnecte **toute seule**.
 
 <br>
 
+## Watcher (demarrage auto)
+
+Un daemon qui surveille la connexion de ta manette et relance Quest automatiquement. Plus besoin de lancer `npm start` a la main.
+
+**Installer :**
+
+```bash
+./install-watcher.sh
+```
+
+Le script detecte les chemins de `node` et du projet, genere un LaunchAgent macOS, et le demarre. Quest se lance tout seul des qu'une manette est branchee.
+
+**Commandes :**
+
+| Action | Commande |
+|:---|:---|
+| Logs en direct | `tail -f /tmp/quest-watcher.log` |
+| Desactiver | `launchctl unload ~/Library/LaunchAgents/com.quest.watcher.plist` |
+| Reactiver | `launchctl load ~/Library/LaunchAgents/com.quest.watcher.plist` |
+| Reinstaller | `./install-watcher.sh` |
+
+- Poll toutes les 3s via `node-hid`
+- Manette branchee → kill Quest + relaunch propre
+- Se relance tout seul si crash (KeepAlive)
+- Demarre au login automatiquement
+
+<br>
+
+---
+
+<br>
+
 ## Permissions
 
-| Permission | Chemin |
-|:---|:---|
-| Accessibilite | Reglages Systeme → Confidentialite → Accessibilite |
-| Microphone | Reglages Systeme → Confidentialite → Microphone |
+| Permission | Chemin | Quoi ajouter |
+|:---|:---|:---|
+| Accessibilite | Reglages Systeme → Confidentialite → Accessibilite | **Terminal** (si `npm start`) ou **Electron.app** (si watcher) |
+| Microphone | Reglages Systeme → Confidentialite → Microphone | Pour la dictee vocale |
+
+> **Watcher** : si tu utilises le watcher, il faut ajouter `Electron.app` dans Accessibilite.
+> Tu le trouves dans `node_modules/electron/dist/Electron.app` du projet.
 
 <br>
 
