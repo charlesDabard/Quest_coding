@@ -42,6 +42,33 @@ npm start
 
 <br>
 
+## Features
+
+<table>
+<tr>
+<td>🎮 <strong>Souris + clavier complets</strong> via DualSense</td>
+<td>🎯 <strong>Combos</strong> — L1/R1/L2/R2 + boutons</td>
+</tr>
+<tr>
+<td>📜 <strong>Scroll 3 paliers</strong> + gachettes proportionnelles</td>
+<td>🎙️ <strong>Dictee vocale</strong> — Apple / SuperWhisper</td>
+</tr>
+<tr>
+<td>👤 <strong>Profils multiples</strong> — switch avec PS</td>
+<td>🕹️ <strong>Mini-jeu</strong> Guitar Hero pour apprendre</td>
+</tr>
+<tr>
+<td>🔄 <strong>Reconnexion auto</strong> — debranche, rebranche, ca repart</td>
+<td>💡 <strong>LED + vibrations</strong> — feedback en temps reel</td>
+</tr>
+</table>
+
+<br>
+
+---
+
+<br>
+
 ## Cheat Sheet
 
 > Tout ce que ta manette sait faire, en un coup d'oeil.
@@ -284,6 +311,41 @@ Quest est fait pour piloter **Claude Code** depuis ta manette. Tu dictes, tu nav
 | *"Pousse mon Kevin"* | `git commit + push` — envoie sur GitHub |
 
 > Dicte avec **O**, navigue avec le **D-pad**, valide avec **X**, efface avec **[]**. Tout depuis le canape.
+
+<br>
+
+---
+
+<br>
+
+## LED & Vibrations
+
+La manette te parle.
+
+| Couleur LED | Etat |
+|:---:|:---|
+| 🔵 **Cyan** | Normal — pret a l'action |
+| 🔴 **Rose** | Dictee vocale active |
+| 🟣 **Violet** | Selection mode (drag) |
+
+Vibration a chaque action pour confirmer que c'est passe.
+
+<br>
+
+---
+
+<br>
+
+## Connexion
+
+La manette se reconnecte **toute seule**.
+
+- Debranche ou eteint → l'app detecte et attend
+- Rebranche ou rallume → reconnexion automatique en 3s
+- Tous les etats sont reset proprement (pas de touches fantomes)
+- Plus besoin de relancer l'app ou `npm install`
+
+> USB ou Bluetooth, ca marche pareil.
 
 <br>
 

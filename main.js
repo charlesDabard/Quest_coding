@@ -157,6 +157,7 @@ let settings = { ...DEFAULTS, scrollTiers: DEFAULTS.scrollTiers.map(t => ({ ...t
 // ─── State ───────────────────────────────────────────────────────────────────
 let mb, controller, gameWindow;
 let connected = false;
+let reconnectTimer = null;
 let dictationBusy = false;
 let dictationActive = false;
 let mapping = { ...DEFAULT_MAPPING };
@@ -345,17 +346,65 @@ function sendState() {
 }
 
 // ─── Controller ──────────────────────────────────────────────────────────────
+function resetControllerState() {
+  held.l1 = false; held.r1 = false; held.l2 = false; held.r2 = false;
+  usedAsModifier.l1 = false; usedAsModifier.r1 = false; usedAsModifier.l2 = false; usedAsModifier.r2 = false;
+  usedAsAnalog.l2 = false; usedAsAnalog.r2 = false;
+  selectionMode = false;
+  stickX = 0; stickY = 0; rStickX = 0; rStickY = 0;
+  l2Pressure = 0; r2Pressure = 0;
+  crossLastPress = 0;
+  // Clear all repeat timers
+  for (const id of Object.keys(buttonRepeatTimers)) {
+    if (buttonRepeatTimers[id].delay) clearTimeout(buttonRepeatTimers[id].delay);
+    if (buttonRepeatTimers[id].interval) clearInterval(buttonRepeatTimers[id].interval);
+    delete buttonRepeatTimers[id];
+  }
+}
+
+function cleanupController() {
+  if (mouseLoopId) { clearInterval(mouseLoopId); mouseLoopId = null; }
+  resetControllerState();
+  if (controller) {
+    try { controller.hid.provider.disconnect(); } catch (_) {}
+    controller = null;
+  }
+}
+
+function scheduleReconnect() {
+  if (reconnectTimer) return;
+  console.log("Will attempt reconnection every 3s...");
+  reconnectTimer = setInterval(() => {
+    console.log("Reconnecting controller...");
+    try {
+      initController();
+      // If we get here without throwing, clear the retry timer
+      // Actual connection confirmation comes from the "change" event
+    } catch (e) {
+      console.log("Reconnect failed:", e.message);
+    }
+  }, 3000);
+}
+
 function initController() {
+  // Clean up previous instance if any
+  if (controller) cleanupController();
+  if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
+
   controller = new Dualsense();
 
   controller.connection.on("change", ({ active }) => {
     connected = active;
-    console.log(active ? "Controller connected" : "Controller disconnected");
     if (active) {
+      if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
+      console.log("Controller connected");
       setLedColor(0, 255, 255);  // cyan = normal mode
       if (!mouseLoopId) startMouseLoop();
     } else {
+      console.log("Controller disconnected");
       if (mouseLoopId) { clearInterval(mouseLoopId); mouseLoopId = null; }
+      resetControllerState();
+      scheduleReconnect();
     }
     sendState();
   });
@@ -620,7 +669,15 @@ function fireSpecial(action) {
   } else if (action.special === "mouse_click") {
     mouse.leftClick().catch((e) => console.error("Mouse click error:", e.message));
   } else if (action.special === "mouse_right_click") {
-    mouse.rightClick().catch((e) => console.error("Mouse right click error:", e.message));
+    (async () => {
+      try {
+        await mouse.pressButton(Button.RIGHT);
+        await new Promise((r) => setTimeout(r, 50));
+        await mouse.releaseButton(Button.RIGHT);
+      } catch (e) {
+        console.error("Mouse right click error:", e.message);
+      }
+    })();
   } else if (action.special === "mouse_double_click") {
     mouse.doubleClick(Button.LEFT).catch((e) => console.error("Mouse double click error:", e.message));
   } else if (action.special === "selection_mode") {
