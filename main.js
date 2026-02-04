@@ -168,6 +168,7 @@ let keepaliveTimer = null;
 let currentLedR = 0, currentLedG = 255, currentLedB = 255;
 let dictationBusy = false;
 let dictationActive = false;
+let swRecording = false;
 let mapping = { ...DEFAULT_MAPPING };
 let dictationProvider = "apple";  // "apple" | "superwhisper"
 
@@ -372,6 +373,7 @@ function resetControllerState() {
 }
 
 function cleanupController() {
+  swRecording = false;
   if (keepaliveTimer) { clearInterval(keepaliveTimer); keepaliveTimer = null; }
   if (mouseLoopId) { clearInterval(mouseLoopId); mouseLoopId = null; }
   resetControllerState();
@@ -802,14 +804,17 @@ async function toggleDictation() {
   if (dictationBusy) return;
   dictationBusy = true;
 
-  // SuperWhisper: just send Right Cmd, let SuperWhisper manage its own state
-  // (SuperWhisper auto-stops on silence, so tracking dictationActive causes desync)
+  // SuperWhisper: clapet simple rouge/bleu
   if (dictationProvider === "superwhisper") {
     await fireKeys([Key.RightCmd]);
-    setLedColor(255, 50, 100);
-    setTimeout(() => setLedColor(0, 255, 255), 2000);  // flash 2s
-    console.log("Dictation: SuperWhisper toggled");
-    setTimeout(() => { dictationBusy = false; }, 1000);  // cooldown: block rapid re-toggle
+    swRecording = !swRecording;
+    if (swRecording) {
+      setLedColor(255, 0, 0);    // rouge
+    } else {
+      setLedColor(0, 0, 255);    // bleu
+    }
+    console.log(`Dictation: SuperWhisper ${swRecording ? "ON" : "OFF"}`);
+    setTimeout(() => { dictationBusy = false; }, 1000);
     return;
   }
 
