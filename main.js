@@ -164,6 +164,8 @@ let settings = { ...DEFAULTS, scrollTiers: DEFAULTS.scrollTiers.map(t => ({ ...t
 let mb, controller, gameWindow;
 let connected = false;
 let reconnectTimer = null;
+let keepaliveTimer = null;
+let currentLedR = 0, currentLedG = 255, currentLedB = 255;
 let dictationBusy = false;
 let dictationActive = false;
 let mapping = { ...DEFAULT_MAPPING };
@@ -311,6 +313,7 @@ function rumbleTap(intensity = 0.3, duration = 80) {
 }
 
 function setLedColor(r, g, b) {
+  currentLedR = r; currentLedG = g; currentLedB = b;
   try {
     // Access low-level HID command to set touchpad LED RGB
     if (controller.hid && controller.hid.command) {
@@ -369,6 +372,7 @@ function resetControllerState() {
 }
 
 function cleanupController() {
+  if (keepaliveTimer) { clearInterval(keepaliveTimer); keepaliveTimer = null; }
   if (mouseLoopId) { clearInterval(mouseLoopId); mouseLoopId = null; }
   resetControllerState();
   if (controller) {
@@ -414,6 +418,11 @@ function initController() {
     }
     sendState();
   });
+
+  // Keepalive BT : renvoie la LED toutes les 30s pour eviter le timeout DualSense
+  keepaliveTimer = setInterval(() => {
+    if (connected) setLedColor(currentLedR, currentLedG, currentLedB);
+  }, 30000);
 
   const bindings = {
     dpad_up: controller.dpad.up,       dpad_down: controller.dpad.down,
