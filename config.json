@@ -18,7 +18,7 @@
         "r2": "scroll_down",
         "l3": "copy",
         "r3": "paste",
-        "options": "tab",
+        "options": "volume_up",
         "create": "ctrl_c",
         "mute": "escape",
         "touchpad": "switch_app"

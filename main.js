@@ -82,6 +82,8 @@ const ACTIONS = {
   mouse_right_click: { label: "Clic souris droit",        cat: "Special",     special: "mouse_right_click" },
   mouse_double_click: { label: "Double clic souris",      cat: "Special",     special: "mouse_double_click" },
   selection_mode:    { label: "Selection (Shift maintenu)", cat: "Special",   special: "selection_mode" },
+  volume_up:         { label: "Volume +",                   cat: "Systeme",    keys: [Key.AudioVolUp] },
+  volume_down:       { label: "Volume -",                   cat: "Systeme",    keys: [Key.AudioVolDown] },
   none:              { label: "Aucune action",            cat: "Special",     keys: [] },
 };
 
@@ -94,7 +96,7 @@ const DEFAULT_MAPPING = {
   l1: "undo",              r1: "redo",
   l2: "scroll_up",         r2: "scroll_down",
   l3: "copy",              r3: "paste",
-  options: "tab",           create: "ctrl_c",
+  options: "volume_up",      create: "ctrl_c",
   mute: "escape",          touchpad: "ctrl_c",
   ps: "cycle_profile",
 };
@@ -131,6 +133,9 @@ const COMBOS = {
     { held: ["r1"],       action: "escape" },                // R1+△ → Echap
     { held: ["r2"],       action: "spotlight" },              // R2+△ → Cmd+Space (Spotlight)
     { held: ["l1"],       action: "space" },                  // L1+△ → Espace
+  ],
+  options: [
+    { held: ["l1"],       action: "volume_down" },            // L1+Options → Volume -
   ],
 };
 
@@ -316,13 +321,16 @@ function rumbleTap(intensity = 0.3, duration = 80) {
 function setLedColor(r, g, b) {
   currentLedR = r; currentLedG = g; currentLedB = b;
   try {
-    // Access low-level HID command to set touchpad LED RGB
-    if (controller.hid && controller.hid.command) {
-      controller.hid.command[45] = r;
-      controller.hid.command[46] = g;
-      controller.hid.command[47] = b;
-      controller.hid.sendCommand();
-    }
+    const dev = controller && controller.hid && controller.hid.provider && controller.hid.provider.device;
+    if (!dev) return;
+    const report = new Uint8Array(48).fill(0);
+    report[0] = 0x02;          // report ID
+    report[2] = 0x04;          // scope B: TouchpadLeds
+    report[39] = 0x02;         // LedOptions: Uninterruptible
+    report[45] = r;
+    report[46] = g;
+    report[47] = b;
+    dev.write(Array.from(report));
   } catch (err) {
     console.error("LED error:", err.message);
   }
